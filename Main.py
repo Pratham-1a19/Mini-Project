@@ -33,6 +33,7 @@ class SampleApp(tk.Tk):
 class StartPage(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
+        self.pack(fill="both", expand=True)
         master.geometry('1370x1050+0+0')
         master.configure(bg="#69b5b5")
 
@@ -44,9 +45,9 @@ class StartPage(tk.Frame):
                 master.switch_frame(PageTwo)
         
         radio = IntVar()
-        tk.Label(self, text="Welcome to the store!!", font=('Helvetica', 18, "bold")).pack(side="top", padx=700, pady=700)
+        tk.Label(self, text="Welcome to the store!!", font=('Poppins', 50), fg="#f8f8f2", bg="#44475a").pack(pady=50)
         tk.Radiobutton(self, text="New User", bg="#6969b5", fg="#e8edf3", variable=radio, value=1, command=selection, width=15, height=1, font=("Poppins", 50)).place(x=100, y=650)
-        tk.Radiobutton(self, text="Existing User", bg="#6969b5", fg="#e8edf3", variable=radio, value=2, command=selection, width=15, height=1, font=("Poppins", 50)).place(x=800, y=650)
+        tk.Radiobutton(self, text="Existing User", bg="#6969b5", fg="#e8edf3", variable=radio, value=2, command=selection, width=15, height=1, font=("Poppins", 50)).place(x=775, y=650)
 
 class PageOne(tk.Frame):
     def __init__(self, master):
