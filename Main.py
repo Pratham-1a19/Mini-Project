@@ -11,9 +11,9 @@ except ImportError:
     import os
     from datetime import date
     from PIL import Image, ImageTk
+    import tkinter.font as tkFont
 
-# Database and face cascade
-DB_PATH = "customer_db.sqlite"
+DB_PATH = "user.db"
 FACE_CASCADE = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 class SampleApp(tk.Tk):
@@ -45,7 +45,8 @@ class StartPage(tk.Frame):
                 master.switch_frame(PageTwo)
         
         radio = IntVar()
-        tk.Label(self, text="Welcome to the store!!", font=('Poppins', 50), fg="#f8f8f2", bg="#44475a").pack(pady=50)
+        bold_font = tkFont.Font(family='Poppins', size=50, weight='bold')
+        tk.Label(self, text="Welcome to the store!!", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
         tk.Radiobutton(self, text="New User", bg="#6969b5", fg="#e8edf3", variable=radio, value=1, command=selection, width=15, height=1, font=("Poppins", 50)).place(x=100, y=650)
         tk.Radiobutton(self, text="Existing User", bg="#6969b5", fg="#e8edf3", variable=radio, value=2, command=selection, width=15, height=1, font=("Poppins", 50)).place(x=775, y=650)
 
@@ -65,7 +66,7 @@ class PageOne(tk.Frame):
                 for (x, y, w, h) in faces:
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
                     count += 1
-                    cv2.imwrite(f"dataset/User.2.{count}.jpg", gray[y:y+h, x:x+w])
+                    cv2.imwrite(f"dataset/User.2.{count}.jpg", gray[y:y+h, x:x+w])  # The id to the image is provided here
                     cv2.imshow('CollectDatasets', img)
                 if cv2.waitKey(1) == ord('q') or count >= 50:
                     break
@@ -105,7 +106,7 @@ class PageTwo(tk.Frame):
             recognizer = cv2.face.LBPHFaceRecognizer_create()
             recognizer.read('trainer.yml')
             face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-            names = ['None', 'Pratham', 'Mrudul']
+            names = ['None', 'Pratham', 'Himanshu']  # The name is to be added behind this
             cam = cv2.VideoCapture(0)
             minW, minH = 0.1 * cam.get(3), 0.1 * cam.get(4)
             i = 0
