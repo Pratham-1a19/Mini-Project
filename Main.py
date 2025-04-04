@@ -12,6 +12,7 @@ except ImportError:
     from datetime import date
     from PIL import Image, ImageTk
     import tkinter.font as tkFont
+    from tkcalendar import DateEntry
 
 DB_PATH = "user.db"
 FACE_CASCADE = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -43,17 +44,41 @@ class StartPage(tk.Frame):
         def selection():
             a = radio.get()
             if a == 1:
-                master.switch_frame(PageOne)
+                master.switch_frame(PageSeven)
             elif a == 2:
-                master.switch_frame(PageTwo)
+                master.switch_frame(PageTen)
+            elif a == 3: 
+                master.switch_frame(PageOne)
         
         radio = IntVar()
-        bold_font = tkFont.Font(family='Product Sans', size=65, weight='bold')
-        tk.Label(self, text="Welcome to the store!!", font=bold_font, fg="#ffffff", bg="#44475a", width=60).pack(pady=50)
-        tk.Radiobutton(self, text="New Customer", bg="#44475a", fg="#e8edf3", variable=radio, value=1, command=selection, width=15, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=200, y=650)
-        tk.Radiobutton(self, text="Existing Customer", bg="#44475a", fg="#e8edf3", variable=radio, value=2, command=selection, width=15, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=1000, y=650)
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        tk.Label(self, text="General Store", font=bold_font, fg="#ffffff", bg="#44475a", width=60).pack(pady=50)
+        tk.Radiobutton(self, text="Admin", bg="#44475a", fg="#e8edf3", variable=radio, value=1, command=selection, width=10, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=125, y=650)
+        tk.Radiobutton(self, text="Staff", bg="#44475a", fg="#e8edf3", variable=radio, value=2, command=selection, width=10, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=625, y=650)
+        tk.Radiobutton(self, text="Customer", bg="#44475a", fg="#e8edf3", variable=radio, value=3, command=selection, width=10, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=1125, y=650)
 
 class PageOne(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#08D9D6")
+
+        def selection():
+            a = radio.get()
+            if a == 1:
+                master.switch_frame(PageTwo)
+            elif a == 2:
+                master.switch_frame(PageThree)
+        
+        radio = IntVar()
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        tk.Label(self, text="General Store", font=bold_font, fg="#ffffff", bg="#44475a", width=60).pack(pady=50)
+        tk.Radiobutton(self, text="New Customer", bg="#44475a", fg="#e8edf3", variable=radio, value=1, command=selection, width=15, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=150, y=650)
+        tk.Radiobutton(self, text="Existing Customer", bg="#44475a", fg="#e8edf3", variable=radio, value=2, command=selection, width=15, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=950, y=650)
+     
+
+class PageTwo(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.pack(fill="both", expand=True)
@@ -61,7 +86,7 @@ class PageOne(tk.Frame):
         master.configure(bg="#69b5b5")
 
         load = Image.open("back-arrow.png")
-        load = load.resize((75, 75), Image.Resampling.LANCZOS)
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
         render = ImageTk.PhotoImage(load)
 
         img = tk.Label(self, image=render)
@@ -112,13 +137,13 @@ class PageOne(tk.Frame):
             recognizer.write('trainer.yml')
             tk.Label(self, text="Datasets are Trained...", fg="#e8edf3", bg="#22264b", width=45, height=1, font=("Product Sans", 50)).place(x=0, y=880)
         
-        bold_font = tkFont.Font(family='Product Sans', size=65, weight='bold')
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
         tk.Label(self, text="Click below button for dataset collection", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
         tk.Button(self, text="DATASET COLLECTION", command=training_and_collection, relief=RAISED, width=20, fg="#22264b", bg='#44475a', font=("Product Sans", 30)).place_configure(x=1100,y=500,anchor="e",height=50,width=500)
-        tk.Button(self,image=render,text="BACK",command=lambda: master.switch_frame(StartPage),height=76,width=90).place_configure(x=30,y=50)
+        tk.Button(self,image=render,text="BACK",command=lambda: master.switch_frame(PageFive),height=86,width=90).place_configure(x=30,y=50)
         
 
-class PageTwo(tk.Frame):
+class PageThree(tk.Frame):
     def __init__(self, master):        
         super().__init__(master)
         self.pack(fill="both", expand=True)
@@ -164,12 +189,12 @@ class PageTwo(tk.Frame):
             master.switch_frame(PageThree)
             # tk.Label(self, text=f"Welcome to the store {id_text}", fg="#e8edf3", bg="#22264b", width=45, height=1, font=("Product Sans", 50)).place(x=0, y=5)
 
-        bold_font = tkFont.Font(family='Product Sans', size=65, weight='bold')
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
         tk.Label(self, text="Recognize existing customer", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
         tk.Button(self, text="RECOGNIZE USER", command=recognize_user, relief=RAISED, width=20, bg="#efe9d5", fg="#000000", font=("Product Sans", 30)).place_configure(x=1100,y=500,anchor="e",height=50,width=500)
         tk.Button(self,image=render,text="BACK",command=lambda: master.switch_frame(StartPage),height=76,width=90).place_configure(x=30,y=50)
 
-class PageThree(tk.Frame):
+class PageFour(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.pack(fill="both", expand=True)
@@ -185,11 +210,287 @@ class PageThree(tk.Frame):
         img = tk.Label(self, image=render)
         img.image = render
 
-        bold_font = tkFont.Font(family='Product Sans', size=65, weight='bold')
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
         tk.Label(self, text=f"Welcome {id_text}", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
         tk.Button(self,image=render,text="BACK",command=lambda: master.switch_frame(PageTwo),height=76,width=90).place_configure(x=30,y=50)
         
+class PageFive(tk.Frame):
+        def __init__(self, master):    
+            super().__init__(master)
+            self.pack(fill="both", expand=True)
+            master.geometry('1727x1050+0+0')
+            master.configure(bg="#69b5b5")
 
-# if __name__ == "__main__":
-app = SampleApp()
-app.mainloop()
+            bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+            normal_font = tkFont.Font(family="Product Sans", size=35, weight="normal")
+            tk.Label(self, text=f"Login Page", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+            
+            def callback4(id, pwd):
+                # This is a function block
+                print(id + " " + pwd)
+
+            tk.Label(self, text="Enter Staff Id:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45,y=300)
+            e1 = tk.Entry(master,width=20,font=(normal_font), fg="#22264b", bg="#e8edf3")
+            e1.pack()
+            e1.place(x = 685, y = 298)
+            tk.Label(self, text="Enter Password:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45,y=400)
+            e2 = tk.Entry(master,width=20,font=(normal_font),show="*", fg="#22264b", bg="#e8edf3")
+            e2.pack()
+            e2.place(x = 685, y = 398)
+            tk.Button(self, text="Login", command=lambda: callback4(e1.get(),e2.get()),relief=RAISED,width=19,fg="#22264b",bg='#e6cf8b',font=normal_font).place_configure(x=45,y=500)
+
+class PageSix(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#69b5b5")
+
+        load = Image.open("back-arrow.png")
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
+        render = ImageTk.PhotoImage(load)
+
+        img = tk.Label(self, image=render)
+        img.image = render
+
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        normal_font = tkFont.Font(family="Product Sans", size=35, weight="normal")
+        tk.Label(self, text="Billing Page", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+        
+        self.checkboxes = {}
+        self.entries = {}
+        y_axis = 300
+
+        texts = ["Milk", "Curd", "Buttermilk"]
+        for text in texts:
+            var = tk.BooleanVar()
+            tk.Checkbutton(self, text=text, bg="#44475a", fg="#e8edf3", variable=var, width=10, height=1, bd=5, relief='raised', font=normal_font, highlightbackground="#000000", highlightcolor="#000000").place(x=200, y=y_axis)
+            e1 = tk.Entry(master, width=2, font=normal_font)
+            e1.pack()
+            e1.place(x=550, y=y_axis)
+            y_axis += 100
+            self.checkboxes[text] = var
+            self.entries[text] = e1
+
+        tk.Button(self, text="Submit", command=self.show_selection, relief=RAISED, width=19, fg="#22264b", bg='#e6cf8b', font=normal_font).place_configure(x=200, y=y_axis)
+        tk.Button(self,image=render,text="BACK",command=lambda: master.switch_frame(PageFive),height=86,width=90).place_configure(x=30,y=50)
+
+    def show_selection(self):
+        selected_items = {text: self.entries[text].get() for text, var in self.checkboxes.items() if var.get()}
+        print("Selected items with quantities:", selected_items)
+
+class PageSeven(tk.Frame):
+    def __init__(self, master):    
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#69b5b5")
+
+        load = Image.open("back-arrow.png")
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
+        render = ImageTk.PhotoImage(load)
+
+        img = tk.Label(self, image=render)
+        img.image = render
+
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        normal_font = tkFont.Font(family="Product Sans", size=35, weight="normal")
+        err_font = tkFont.Font(family="Product Sans", size=25, weight="normal")
+        tk.Label(self, text=f"Login Page", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+        
+        def callback4(id, pwd):
+            if id != "admin":
+                error_label.config(text="*admin id is incorrect", fg="red")
+                
+            elif pwd != "admin123":
+                error_label.config(text="*password is incorrect", fg="red")
+
+            else:
+                master.switch_frame(PageEight)
+
+        tk.Label(self, text="Enter Admin Id:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=300)
+        e1 = tk.Entry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3")
+        e1.pack()
+        e1.place(x=685, y=298)
+        tk.Label(self, text="Enter Password:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=400)
+        e2 = tk.Entry(master, width=20, font=(normal_font), show="*", fg="#22264b", bg="#e8edf3")
+        e2.pack()
+        e2.place(x=685, y=398)
+        tk.Button(self, text="Login", command=lambda: callback4(e1.get(), e2.get()), relief=RAISED, width=19, fg="#22264b", bg='#e6cf8b', font=normal_font).place_configure(x=45, y=500)
+        tk.Button(self, image=render, text="BACK", command=lambda: master.switch_frame(StartPage), height=86, width=90).place_configure(x=30, y=50)
+
+        error_label = tk.Label(self, text="", fg="red", bg="#69b5b5", font=err_font)
+        error_label.place(x=45, y=600)
+
+class PageEight(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#69b5b5")
+
+        load = Image.open("back-arrow.png")
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
+        render = ImageTk.PhotoImage(load)
+
+        img = tk.Label(self, image=render)
+        img.image = render
+
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        tk.Label(self, text="Welcome to the Admin Page", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+        
+        tk.Button(self, image=render, text="BACK", command=lambda: master.switch_frame(StartPage), height=86, width=90).place_configure(x=30, y=50)
+
+        def selection():
+            a = radio.get()
+            if a == 1:
+                master.switch_frame(PageNine)
+        
+        radio = IntVar()
+        tk.Radiobutton(self, text="Add New Staff Member", bg="#44475a", fg="#e8edf3", variable=radio, value=1, command=selection, width=18, height=1, bd=5, relief='raised', font=('Product Sans', 50), highlightbackground="#000000", highlightcolor="#000000").place(x=125, y=650)
+
+class PageNine(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#69b5b5")
+        normal_font = tkFont.Font(family="Product Sans", size=35, weight="normal")
+
+        load = Image.open("back-arrow.png")
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
+        render = ImageTk.PhotoImage(load)
+
+        img = tk.Label(self, image=render)
+        img.image = render
+
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        tk.Label(self, text="Add Staff Member", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+        
+        tk.Label(self, text="Staff Name:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=300)
+        e1 = tk.Entry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3")
+        e1.pack()
+        e1.place(x=685, y=298)
+
+        tk.Label(self, text="Gender:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=400)
+        e2 = tk.Entry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3")
+        e2.pack()
+        e2.place(x=685, y=398)
+
+        tk.Label(self, text="Date of birth:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=500)
+        e3 = DateEntry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3", date_pattern="yyyy-mm-dd")  # Set the date format
+        e3.pack()
+        e3.place(x=685, y=498)
+
+        tk.Label(self, text="Email:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=600)
+        e4 = tk.Entry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3")
+        e4.pack()
+        e4.place(x=685, y=598)
+
+        tk.Label(self, text="Phone number:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=700)
+        e5 = tk.Entry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3")
+        e5.pack()
+        e5.place(x=685, y=698)
+
+        def add_staff_to_db():
+            staff_name = e1.get()
+            staff_gender = e2.get()
+            staff_dob = e3.get()
+            staff_email = e4.get()
+            staff_phone = e5.get()
+
+            try:
+                conn = sqlite3.connect("Store.db")
+                cursor = conn.cursor()
+
+                cursor.execute("SELECT MAX(staff_id) FROM staff_members")
+                result = cursor.fetchone()
+                next_id = (result[0] or 0) + 1
+
+                staff_id = f"store{next_id}"
+
+                cursor.execute("""
+                    INSERT INTO staff_members (staff_id, staff_name, staff_gender, staff_dob, staff_email, staff_phone)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (staff_id, staff_name, staff_gender, staff_dob, staff_email, staff_phone))
+                conn.commit()
+                conn.close()
+                tk.Label(self, text="Staff added successfully!", fg="green", bg="#69b5b5", font=normal_font).place(x=45, y=900)
+            except Exception as e:
+                tk.Label(self, text=f"Error: {e}", fg="red", bg="#69b5b5", font=normal_font).place(x=60, y=850)
+
+        tk.Button(self, text="Add Staff", command=lambda: add_staff_to_db(), relief=RAISED, width=19, fg="#22264b", bg='#e6cf8b', font=normal_font).place_configure(x=45, y=800)
+        tk.Button(self, image=render, text="BACK", command=lambda: master.switch_frame(PageEight), height=86, width=90).place_configure(x=30, y=50)
+
+class PageTen(tk.Frame):
+    def __init__(self, master):    
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#69b5b5")
+
+        load = Image.open("back-arrow.png")
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
+        render = ImageTk.PhotoImage(load)
+
+        img = tk.Label(self, image=render)
+        img.image = render
+
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        normal_font = tkFont.Font(family="Product Sans", size=35, weight="normal")
+        err_font = tkFont.Font(family="Product Sans", size=25, weight="normal")
+        tk.Label(self, text=f"Login Page", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+        
+        def callback4(id, pwd):
+            try:
+                conn = sqlite3.connect("Store.db")
+                cursor = conn.cursor()
+
+                cursor.execute("SELECT * FROM staff_members WHERE staff_id = ? AND ? = 'staff'", (id, pwd))
+                result = cursor.fetchone()
+
+                if result and pwd == "staff":
+                    master.switch_frame(PageEleven)
+                else:
+                    error_label.config(text="*invalid staff id or password", fg="red")
+
+                conn.close()
+            except Exception as e:
+                error_label.config(text=f"*Error: {e}", fg="red")
+
+        tk.Label(self, text="Enter Staff Id:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=300)
+        e1 = tk.Entry(master, width=20, font=(normal_font), fg="#22264b", bg="#e8edf3")
+        e1.pack()
+        e1.place(x=685, y=298)
+        tk.Label(self, text="Enter Password:", fg="#22264b", bg="#e8edf3", width=20, height=1, font=normal_font, anchor="center").place_configure(x=45, y=400)
+        e2 = tk.Entry(master, width=20, font=(normal_font), show="*", fg="#22264b", bg="#e8edf3")
+        e2.pack()
+        e2.place(x=685, y=398)
+        tk.Button(self, text="Login", command=lambda: callback4(e1.get(), e2.get()), relief=RAISED, width=19, fg="#22264b", bg='#e6cf8b', font=normal_font).place_configure(x=45, y=500)
+        tk.Button(self, image=render, text="BACK", command=lambda: master.switch_frame(StartPage), height=86, width=90).place_configure(x=30, y=50)
+
+        error_label = tk.Label(self, text="", fg="red", bg="#69b5b5", font=err_font)
+        error_label.place(x=45, y=600)
+
+class PageEleven(tk.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        master.geometry('1727x1050+0+0')
+        master.configure(bg="#69b5b5")
+
+        load = Image.open("back-arrow.png")
+        load = load.resize((80, 80), Image.Resampling.LANCZOS)
+        render = ImageTk.PhotoImage(load)
+
+        img = tk.Label(self, image=render)
+        img.image = render
+
+        bold_font = tkFont.Font(family='Product Sans', size=55, weight='bold')
+        tk.Label(self, text="Welcome to the Staff Page", font=bold_font, fg="#f8f8f2", bg="#44475a", width=60).pack(pady=50)
+        
+        tk.Button(self, image=render, text="BACK", command=lambda: master.switch_frame(PageTen), height=86, width=90).place_configure(x=30, y=50)
+
+if __name__ == "__main__":
+    app = SampleApp()
+    app.mainloop()
