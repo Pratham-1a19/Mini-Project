@@ -198,7 +198,7 @@ class PageThree(tk.Frame):
             recognizer = cv2.face.LBPHFaceRecognizer_create()
             recognizer.read('trainer.yml')
             face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-            names = ['None', 'Pratham', 'Nishchay', 'Shiv']  # The name is to be added behind this
+            names = ['None', 'Nishchay', 'Shiv']  # The name is to be added behind this
             cam = cv2.VideoCapture(0)
             minW, minH = 0.1 * cam.get(3), 0.1 * cam.get(4)
             i = 0
@@ -462,7 +462,6 @@ class PageEight(tk.Frame):
         self.add_staff_frame.place_forget()
         self.customer_list_frame.place(x=0, y=300, relwidth=1, relheight=0.7)  # Show customer list frame
 
-        # Clear the frame before adding new widgets
         for widget in self.customer_list_frame.winfo_children():
             widget.destroy()
 
@@ -489,17 +488,14 @@ class PageEight(tk.Frame):
             tk.Label(self.customer_list_frame, text=f"Error: {e}", fg="red", bg="#69b5b5", font=normal_font).pack()
     
     def show_staff_list(self):
-        """Show the list of staff members."""
-        self.customer_list_frame.place_forget()  # Hide customer list frame
+        self.customer_list_frame.place_forget()
         self.add_staff_frame.place(x=0, y=300, relwidth=1, relheight=0.7)  # Show staff list frame
 
-        # Clear the frame before adding new widgets
         for widget in self.add_staff_frame.winfo_children():
             widget.destroy()
 
         normal_font = tkFont.Font(family="Product Sans", size=20, weight="normal")
 
-        # Fetch staff data from the database
         try:
             conn = sqlite3.connect("Store.db")
             cursor = conn.cursor()
@@ -507,7 +503,6 @@ class PageEight(tk.Frame):
             staff_members = cursor.fetchall()
             conn.close()
 
-            # Create a table-like structure
             headers = ["Staff ID", "Name", "Email", "Phone"]
             for col, header in enumerate(headers):
                 padx_value = (100, 5) if col == 0 else (5, 5)  # Add left padding of 100 for the first column
@@ -1418,6 +1413,9 @@ class PageFifteen(tk.Frame):
 
             conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
+            cursor.execute("SELECT customer_id, customer_name FROM customers")
+            id_to_name = {row[0]: row[1] for row in cursor.fetchall()}
+            conn.close()
 
             for image_path in image_paths:
                 try:
@@ -1428,13 +1426,6 @@ class PageFifteen(tk.Frame):
                     # Extract ID from the image filename
                     id = int(os.path.split(image_path)[-1].split(".")[1])
 
-                    # Retrieve customer name from the database using the ID
-                    cursor.execute("SELECT customer_name FROM customers WHERE customer_id = ?", (id,))
-                    result = cursor.fetchone()
-                    if result:
-                        customer_name = result[0]
-                        id_to_name[id] = customer_name
-
                     # Detect faces in the image
                     faces = detector.detectMultiScale(img_numpy)
                     for (x, y, w, h) in faces:
@@ -1443,117 +1434,60 @@ class PageFifteen(tk.Frame):
                 except Exception as e:
                     print(f"Error processing image {image_path}: {e}")
 
-            conn.close()
             return face_samples, ids, id_to_name
 
         faces, ids, id_to_name = get_images_and_labels(dataset_path)
         return faces, ids, id_to_name
     
     def run_detect_faces_from_dataset(self):
-        dataset_path = "dataset"
-        cascade_path = "haarcascade_frontalface_default.xml"  # Path to Haar Cascade XML file
-        db_path = "Store.db"  # Path to the SQLite database
+        cascade_path = "haarcascade_frontalface_default.xml"
+        db_path = "Store.db"
 
         try:
-            faces, ids, id_to_name = self.detect_faces_from_dataset(dataset_path, cascade_path, db_path)
-            if ids:
-                detected_customer_id = ids[0]
-                detected_customer_name = id_to_name.get(detected_customer_id, "Unknown")
+            recognizer = cv2.face.LBPHFaceRecognizer_create()
+            recognizer.read("trainer.yml")  # Load trained model
+            face_cascade = cv2.CascadeClassifier(cascade_path)
 
-                if hasattr(self, 'detect_button'):
-                    self.detect_button.destroy()
+            cam = cv2.VideoCapture(0)
+            detected_customer_id = None
 
-                if detected_customer_name != "Unknown":
-                    for widget in self.existing_customer_frame.winfo_children():
-                        if isinstance(widget, (tk.Entry, tk.Button, tk.Label)):
-                            widget.destroy()
+            while True:
+                ret, img = cam.read()
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-                if detected_customer_name != "Unknown":
-                    tk.Label(
-                        self.existing_customer_frame,
-                        text=f"Welcome, {detected_customer_name} your ID is : {detected_customer_id}!",
-                        fg="green",
-                        bg="#FFFCEA",
-                        font=("Product Sans", 30)
-                    ).place(x=50, y=150)
+                for (x, y, w, h) in faces:
+                    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                    id_, confidence = recognizer.predict(gray[y:y+h, x:x+w])
 
-                    # Fetch customer preferences
-                    conn = sqlite3.connect(db_path)
-                    cursor = conn.cursor()
-                    cursor.execute("SELECT customer_preference FROM customers WHERE customer_id = ?", (detected_customer_id,))
-                    result = cursor.fetchone()
-                    conn.close()
-
-                    if result and result[0]:
-                        try:
-                            preferences = json.loads(result[0])  # Parse preferences as a list
-                            row_index = 250  # Start displaying products below the welcome message
-
-                            # Display preferences and their first two products
-                            for category in preferences:
-                                tk.Label(
-                                    self.existing_customer_frame,
-                                    text=f"Category: {category}",
-                                    fg="#22264b",
-                                    bg="#e8edf3",
-                                    font=("Product Sans", 25)
-                                ).place(x=50, y=row_index)
-                                row_index += 50
-
-                                # Fetch the first two products of the category
-                                conn = sqlite3.connect(db_path)
-                                cursor = conn.cursor()
-                                cursor.execute(f"SELECT product_name, product_prize FROM '{category}' LIMIT 2")
-                                products = cursor.fetchall()
-                                conn.close()
-
-                                if products:
-                                    for product_name, product_price in products:
-                                        tk.Label(
-                                            self.existing_customer_frame,
-                                            text=f"{product_name} - Rs. {product_price}",
-                                            fg="#22264b",
-                                            bg="#FFFCEA",
-                                            font=("Product Sans", 20)
-                                        ).place(x=100, y=row_index)
-                                        row_index += 50
-                                else:
-                                    tk.Label(
-                                        self.existing_customer_frame,
-                                        text="No products available in this category.",
-                                        fg="red",
-                                        bg="#FFFCEA",
-                                        font=("Product Sans", 20)
-                                    ).place(x=100, y=row_index)
-                                    row_index += 30
-                        except json.JSONDecodeError:
-                            tk.Label(
-                                self.existing_customer_frame,
-                                text="Error: Invalid preferences format.",
-                                fg="red",
-                                bg="#69b5b5",
-                                font=("Product Sans", 20)
-                            ).place(x=50, y=300)
+                    if confidence < 60:  # Confidence threshold
+                        detected_customer_id = id_
                     else:
-                        tk.Label(
-                            self.existing_customer_frame,
-                            text="No preferences found for this customer.",
-                            fg="red",
-                            bg="#69b5b5",
-                            font=("Product Sans", 20)
-                        ).place(x=50, y=400)
-                else:
-                    # Display a message if the customer is unknown
-                    tk.Label(
-                        self.existing_customer_frame,
-                        text="No customer detected. Please try again.",
-                        fg="red",
-                        bg="#69b5b5",
-                        font=("Product Sans", 20)
-                    ).place(x=50, y=300)
+                        detected_customer_id = None
+
+                    break  # Stop after first face
+
+                cv2.imshow('Recognizing Customer', img)
+
+                if cv2.waitKey(1) == ord('q') or detected_customer_id is not None:
+                    break
+
+            cam.release()
+            cv2.destroyAllWindows()
+
+            if detected_customer_id:
+                # Fetch name from ID
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                cursor.execute("SELECT customer_name FROM customers WHERE customer_id = ?", (detected_customer_id,))
+                row = cursor.fetchone()
+                conn.close()
+
+                detected_customer_name = row[0] if row else "Unknown"
+
+                self.display_customer_info(detected_customer_id, detected_customer_name)
 
             else:
-                # Display a message if no faces are detected
                 tk.Label(
                     self.existing_customer_frame,
                     text="No customer detected. Please try again.",
@@ -1571,6 +1505,94 @@ class PageFifteen(tk.Frame):
                 bg="#69b5b5",
                 font=("Product Sans", 20)
             ).place(x=50, y=300)
+    
+    def display_customer_info(self, customer_id, customer_name):
+        db_path = "Store.db"
+
+        # Clear existing widgets
+        for widget in self.existing_customer_frame.winfo_children():
+            if isinstance(widget, (tk.Entry, tk.Button, tk.Label)):
+                widget.destroy()
+
+        # Welcome message
+        tk.Label(
+            self.existing_customer_frame,
+            text=f"Welcome, {customer_name}! Your ID is: {customer_id}",
+            fg="green",
+            bg="#FFFCEA",
+            font=("Product Sans", 30)
+        ).place(x=50, y=150)
+
+        # Fetch preferences from database
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT customer_preference FROM customers WHERE customer_id = ?", (customer_id,))
+            result = cursor.fetchone()
+            conn.close()
+
+            if result and result[0]:
+                preferences = json.loads(result[0])  # Expecting a JSON list like ["Shirts", "Watches"]
+                row_index = 250
+
+                for category in preferences:
+                    # Display category label
+                    tk.Label(
+                        self.existing_customer_frame,
+                        text=f"Category: {category}",
+                        fg="#22264b",
+                        bg="#e8edf3",
+                        font=("Product Sans", 25)
+                    ).place(x=50, y=row_index)
+                    row_index += 50
+
+                    # Fetch products from category table
+                    conn = sqlite3.connect(db_path)
+                    cursor = conn.cursor()
+                    try:
+                        cursor.execute(f"SELECT product_name, product_prize FROM '{category}' LIMIT 2")
+                        products = cursor.fetchall()
+                    except sqlite3.OperationalError:
+                        products = []
+                    conn.close()
+
+                    if products:
+                        for product_name, product_price in products:
+                            tk.Label(
+                                self.existing_customer_frame,
+                                text=f"{product_name} - Rs. {product_price}",
+                                fg="#22264b",
+                                bg="#FFFCEA",
+                                font=("Product Sans", 20)
+                            ).place(x=100, y=row_index)
+                            row_index += 50
+                    else:
+                        tk.Label(
+                            self.existing_customer_frame,
+                            text="No products available in this category.",
+                            fg="red",
+                            bg="#FFFCEA",
+                            font=("Product Sans", 20)
+                        ).place(x=100, y=row_index)
+                        row_index += 30
+            else:
+                tk.Label(
+                    self.existing_customer_frame,
+                    text="No preferences found for this customer.",
+                    fg="red",
+                    bg="#69b5b5",
+                    font=("Product Sans", 20)
+                ).place(x=50, y=400)
+
+        except Exception as e:
+            tk.Label(
+                self.existing_customer_frame,
+                text=f"Error loading preferences: {e}",
+                fg="red",
+                bg="#69b5b5",
+                font=("Product Sans", 20)
+            ).place(x=50, y=400)
+
 
 
 
